@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:focused_menu/focused_menu.dart';
 import 'package:focused_menu/modals.dart';
 import 'package:openscan/Utilities/constants.dart';
+import 'package:openscan/Utilities/moor_db.dart';
 import 'package:openscan/Widgets/custom_FAB.dart';
 import 'package:openscan/screens/about_screen.dart';
 import 'package:openscan/screens/getting_started_screen.dart';
@@ -79,9 +80,21 @@ class _HomeScreenState extends State<HomeScreen> {
     await _requestPermission();
   }
 
+  getDirectories() async{
+    AppDatabase().insert(MasterData(
+      directoryName: ' directoryName ',
+      directoryPath: "dirPath",
+      created: 'created',
+      lastModified: DateTime.now().toString(),
+      imagePath: 'imageFile.path',
+    ));
+    print(await AppDatabase().getAllDirectories());
+  }
+
   @override
   void initState() {
     super.initState();
+    getDirectories();
     getData();
     askPermission();
   }

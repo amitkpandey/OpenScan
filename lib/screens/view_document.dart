@@ -5,6 +5,7 @@ import 'package:flutter_scanner_cropper/flutter_scanner_cropper.dart';
 import 'package:openscan/Utilities/DatabaseHelper.dart';
 import 'package:openscan/Utilities/constants.dart';
 import 'package:openscan/Utilities/file_operations.dart';
+import 'package:openscan/Utilities/moor_db.dart';
 import 'package:openscan/Widgets/Image_Card.dart';
 import 'package:openscan/screens/home_screen.dart';
 import 'package:openscan/screens/pdf_screen.dart';
@@ -52,6 +53,7 @@ class _ViewDocumentState extends State<ViewDocument> {
   Future<void> createDirectoryName() async {
     Directory appDir = await getExternalStorageDirectory();
     dirPath = "${appDir.path}/OpenScan ${DateTime.now()}";
+    fileName = dirPath.substring(dirPath.lastIndexOf("/") + 1);
   }
 
   Future<dynamic> createImage() async {
@@ -70,6 +72,15 @@ class _ViewDocumentState extends State<ViewDocument> {
         i: imageFilesWithDate.length + 1,
         dirPath: dirPath,
       );
+
+      AppDatabase().insert(MasterData(
+        directoryName: fileName,
+        directoryPath: dirPath,
+        created: '  ',
+        lastModified: DateTime.now().toString(),
+        imagePath: imageFile.path,
+      ));
+
       await fileOperations.deleteTemporaryFiles();
       if (widget.quickScan) createImage();
       getImages();
@@ -137,7 +148,6 @@ class _ViewDocumentState extends State<ViewDocument> {
     if (widget.dirPath != null) {
       dirPath = widget.dirPath;
       getImages();
-      fileName = dirPath.substring(dirPath.lastIndexOf("/") + 1);
     } else {
       createDirectoryName();
       createImage();
@@ -214,7 +224,7 @@ class _ViewDocumentState extends State<ViewDocument> {
             getImages();
           },
           child: Padding(
-            padding: EdgeInsets.all(size.width*0.01),
+            padding: EdgeInsets.all(size.width * 0.01),
             child: Theme(
               data: Theme.of(context).copyWith(accentColor: primaryColor),
               child: ListView(
@@ -401,7 +411,7 @@ class _ViewDocumentState extends State<ViewDocument> {
                       FlatButton(
                         onPressed: () {
                           Directory(dirPath).deleteSync(recursive: true);
-                          DatabaseHelper()..deleteDirectory(dirPath: dirPath);
+//                          DatabaseHelper()..deleteDirectory(dirPath: dirPath);
                           Navigator.popUntil(
                               context, ModalRoute.withName(HomeScreen.route));
                         },
